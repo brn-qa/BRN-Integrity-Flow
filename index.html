@@ -5,23 +5,35 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>BRN Integrity Flow</title>
+
     <link rel="icon"
         href="https://raw.githubusercontent.com/brn-qa/logo/refs/heads/main/Rezki.png"
         type="image/x-icon">
+
     <style>
+        :root {
+            --bg: #020617;
+            --cyan: #00eaff;
+            --blue: #2563eb;
+            --soft: rgba(0, 234, 255, 0.16);
+            --text: #e6fbff;
+        }
+
         html,
         body {
             margin: 0;
             padding: 0;
             height: 100%;
             overflow: hidden;
-            font-family: sans-serif;
+            font-family: "Segoe UI", Arial, sans-serif;
+            background: var(--bg);
         }
 
         .iframe-container {
             position: relative;
             width: 100%;
             height: 100vh;
+            background: var(--bg);
         }
 
         iframe {
@@ -30,26 +42,567 @@
             border: none;
         }
 
+        /* =========================
+           LIGHT FUTURISTIC LOADER
+        ========================== */
+
         .loader {
             position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            font-size: 1.2rem;
-            color: #666;
-            z-index: 10;
+            inset: 0;
+            z-index: 50;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            background:
+                radial-gradient(circle at center, rgba(0, 234, 255, 0.10), transparent 34%),
+                linear-gradient(135deg, #020617, #07111f 55%, #020617);
+            transition: background 0.6s ease, opacity 0.6s ease, visibility 0.6s ease;
+        }
+
+        .loader::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background:
+                linear-gradient(90deg, transparent, rgba(0, 234, 255, 0.07), transparent);
+            transform: translateX(-100%);
+            animation: scanMove 2.4s linear infinite;
+        }
+
+        @keyframes scanMove {
+            to {
+                transform: translateX(100%);
+            }
+        }
+
+        .loader-card {
+            position: relative;
+            z-index: 3;
+            width: min(420px, 86vw);
+            padding: 18px 14px;
+            border-radius: 0;
+            background: transparent;
+            border: none;
+            box-shadow: none;
+            text-align: center;
+            transition:
+                transform 0.95s cubic-bezier(.16, 1, .3, 1),
+                opacity 0.75s ease,
+                filter 0.75s ease;
+            will-change: transform, opacity, filter;
+        }
+
+        .brand-mini {
+            font-size: 0.72rem;
+            letter-spacing: 3px;
+            color: rgba(230, 251, 255, 0.68);
+            margin-bottom: 18px;
+        }
+
+        .logo-core {
+            position: relative;
+            width: 96px;
+            height: 96px;
+            margin: 0 auto 18px;
+            border-radius: 50%;
+            display: grid;
+            place-items: center;
+            border: 1px solid rgba(0, 234, 255, 0.55);
+            box-shadow: 0 0 20px rgba(0, 234, 255, 0.26);
+            animation: corePulse 1.8s ease-in-out infinite;
+        }
+
+        .logo-core::before {
+            content: "";
+            position: absolute;
+            inset: -9px;
+            border-radius: 50%;
+            border: 1px solid rgba(0, 234, 255, 0.18);
+            animation: ringRotate 3s linear infinite;
+        }
+
+        .logo-core::after {
+            content: "";
+            position: absolute;
+            width: 124px;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--cyan), transparent);
+            opacity: 0.55;
+            animation: linePulse 1.4s ease-in-out infinite;
+        }
+
+        .logo-core img {
+            width: 78px;
+            height: 78px;
+            object-fit: cover;
+            border-radius: 50%;
+        }
+
+        @keyframes corePulse {
+            0%, 100% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.035);
+            }
+        }
+
+        @keyframes ringRotate {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        @keyframes linePulse {
+            0%, 100% {
+                opacity: 0.25;
+                transform: scaleX(0.8);
+            }
+
+            50% {
+                opacity: 0.8;
+                transform: scaleX(1);
+            }
+        }
+
+        .loader-title {
+            color: var(--text);
+            font-size: 1.05rem;
+            font-weight: 700;
+            letter-spacing: 1.4px;
+            margin-bottom: 8px;
+        }
+
+        .loader-desc {
+            color: rgba(230, 251, 255, 0.62);
+            font-size: 0.82rem;
+            line-height: 1.5;
+            margin: 0 auto 22px;
+            max-width: 360px;
+            min-height: 38px;
+        }
+
+        .connection {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 20px;
+            color: rgba(230, 251, 255, 0.7);
+            font-size: 0.72rem;
+            letter-spacing: 1px;
+        }
+
+        .dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: var(--cyan);
+            box-shadow: 0 0 10px var(--cyan);
+            animation: dotBlink 1.1s ease-in-out infinite;
+        }
+
+        .dot:nth-child(3) {
+            animation-delay: 0.18s;
+        }
+
+        .dot:nth-child(5) {
+            animation-delay: 0.36s;
+        }
+
+        @keyframes dotBlink {
+            0%, 100% {
+                opacity: 0.35;
+                transform: scale(0.9);
+            }
+
+            50% {
+                opacity: 1;
+                transform: scale(1.2);
+            }
+        }
+
+        .progress-box {
+            width: 100%;
+        }
+
+        .progress-info {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.7rem;
+            color: rgba(230, 251, 255, 0.55);
+            margin-bottom: 8px;
+            letter-spacing: 1px;
+        }
+
+        .progress-track {
+            height: 4px;
+            border-radius: 999px;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.10), transparent);
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            width: 0%;
+            height: 100%;
+            border-radius: inherit;
+            background: linear-gradient(90deg, var(--cyan), var(--blue));
+            box-shadow: 0 0 12px rgba(0, 234, 255, 0.55);
+            transition: width 0.25s ease;
+        }
+
+        /* =========================
+           CLEAN MORPH RECEDING EXIT
+           Tanpa kotak pinggir.
+           Efek: logo jadi inti cahaya, portal tipis muncul, lalu mundur mengecil sampai hilang.
+        ========================== */
+
+        .portal-exit {
+            position: absolute;
+            inset: 0;
+            z-index: 2;
+            display: grid;
+            place-items: center;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.35s ease;
+        }
+
+        .portal-ring {
+            position: absolute;
+            width: 132px;
+            height: 132px;
+            border-radius: 50%;
+            border: 1px solid rgba(0, 234, 255, 0.36);
+            box-shadow:
+                0 0 18px rgba(0, 234, 255, 0.18),
+                inset 0 0 12px rgba(0, 234, 255, 0.08);
+            transform: scale(0.74);
+            opacity: 0;
+            will-change: transform, opacity;
+        }
+
+        .ring-1 {
+            border-top-color: rgba(230, 251, 255, 0.68);
+            border-right-color: rgba(37, 99, 235, 0.48);
+        }
+
+        .ring-2 {
+            width: 94px;
+            height: 94px;
+            border-left-color: rgba(230, 251, 255, 0.58);
+            border-bottom-color: rgba(37, 99, 235, 0.45);
+        }
+
+        .portal-flash {
+            position: absolute;
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            background: rgba(0, 234, 255, 0.76);
+            box-shadow:
+                0 0 18px rgba(0, 234, 255, 0.75),
+                0 0 38px rgba(0, 234, 255, 0.32);
+            transform: scale(0);
+            opacity: 0;
+            will-change: transform, opacity;
+        }
+
+        /* fase 1: elemen teks hilang, hanya logo dan ring hologram */
+        .loader.complete .portal-exit {
+            opacity: 1;
+        }
+
+        .loader.complete .brand-mini,
+        .loader.complete .loader-title,
+        .loader.complete .loader-desc,
+        .loader.complete .connection,
+        .loader.complete .progress-box {
+            opacity: 0;
+            transform: translateY(8px);
+            transition: 0.35s ease;
+        }
+
+        .loader.complete .loader-card {
+            transform: scale(0.86);
+            opacity: 1;
+            filter: none;
+        }
+
+        .loader.complete .logo-core {
+            margin: 0 auto;
+            animation: exitCorePulse 0.8s ease-in-out infinite;
+        }
+
+        @keyframes exitCorePulse {
+            0%, 100% {
+                transform: scale(0.92);
+                opacity: 0.94;
+            }
+
+            50% {
+                transform: scale(1.04);
+                opacity: 1;
+            }
+        }
+
+        .loader.complete .ring-1 {
+            opacity: 1;
+            animation: portalSpin 1.1s linear infinite;
+        }
+
+        .loader.complete .ring-2 {
+            opacity: 0.76;
+            animation: portalSpinReverse 1.35s linear infinite;
+        }
+
+        @keyframes portalSpin {
+            to {
+                transform: scale(0.92) rotate(360deg);
+            }
+        }
+
+        @keyframes portalSpinReverse {
+            to {
+                transform: scale(0.82) rotate(-360deg);
+            }
+        }
+
+        /* fase 2: mundur mengecil sampai hilang */
+        .loader.exit {
+            background: transparent;
+        }
+
+        .loader.exit::before {
+            opacity: 0;
+        }
+
+        .loader.exit .loader-card {
+            transform: perspective(900px) translateZ(-520px) scale(0.08);
+            opacity: 0;
+            filter: blur(2px);
+        }
+
+        .loader.exit .portal-flash {
+            animation: cleanFlashRecede 0.7s cubic-bezier(.16, 1, .3, 1) forwards;
+        }
+
+        .loader.exit .ring-1 {
+            animation: ringRecedeOuter 0.78s cubic-bezier(.16, 1, .3, 1) forwards;
+        }
+
+        .loader.exit .ring-2 {
+            animation: ringRecedeInner 0.68s cubic-bezier(.16, 1, .3, 1) forwards;
+        }
+
+        @keyframes cleanFlashRecede {
+            0% {
+                transform: scale(0.25);
+                opacity: 0.72;
+            }
+
+            45% {
+                transform: scale(1.8);
+                opacity: 0.22;
+            }
+
+            100% {
+                transform: scale(0.05);
+                opacity: 0;
+            }
+        }
+
+        @keyframes ringRecedeOuter {
+            0% {
+                transform: scale(0.92) rotate(0deg);
+                opacity: 1;
+            }
+
+            55% {
+                transform: scale(1.28) rotate(120deg);
+                opacity: 0.6;
+            }
+
+            100% {
+                transform: perspective(900px) translateZ(-540px) scale(0.05) rotate(220deg);
+                opacity: 0;
+            }
+        }
+
+        @keyframes ringRecedeInner {
+            0% {
+                transform: scale(0.82) rotate(0deg);
+                opacity: 0.78;
+            }
+
+            55% {
+                transform: scale(1.08) rotate(-100deg);
+                opacity: 0.42;
+            }
+
+            100% {
+                transform: perspective(900px) translateZ(-520px) scale(0.04) rotate(-220deg);
+                opacity: 0;
+            }
+        }
+
+        .loader.hidden {
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+        }
+
+        @media (max-width: 480px) {
+            .loader-card {
+                padding: 14px 10px;
+                border-radius: 0;
+            }
+
+            .logo-core {
+                width: 84px;
+                height: 84px;
+            }
+
+            .logo-core img {
+                width: 68px;
+                height: 68px;
+            }
+
+            .loader-title {
+                font-size: 0.95rem;
+            }
+
+            .loader.complete .loader-card {
+                width: min(320px, 86vw);
+                height: auto;
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            *,
+            *::before,
+            *::after {
+                animation: none !important;
+                transition: none !important;
+            }
         }
     </style>
 </head>
 
 <body>
     <div class="iframe-container">
-        <div class="loader" id="loader">Selamat Datang di BRN IF...</div>
+
+        <!-- LOADING -->
+        <div class="loader" id="loader">
+            <div class="portal-exit" aria-hidden="true">
+                <span class="portal-ring ring-1"></span>
+                <span class="portal-ring ring-2"></span>
+                <span class="portal-flash"></span>
+            </div>
+
+            <div class="loader-card">
+                <div class="brand-mini">BRN IF SYSTEM</div>
+
+                <div class="logo-core">
+                    <img src="https://raw.githubusercontent.com/brn-qa/logo/refs/heads/main/Rezki.png" alt="BRN Logo">
+                </div>
+
+                <div class="loader-title">Menghubungkan Sistem</div>
+                <div class="loader-desc" id="loaderDesc">
+                    Perangkat sedang tersambung ke web gateway dan cloud server BRN.
+                </div>
+
+                <div class="connection">
+                    <span>DEVICE</span>
+                    <span class="dot"></span>
+                    <span>WEB</span>
+                    <span class="dot"></span>
+                    <span>CLOUD</span>
+                </div>
+
+                <div class="progress-box">
+                    <div class="progress-info">
+                        <span id="statusText">CONNECTING</span>
+                        <span id="percentText">0%</span>
+                    </div>
+                    <div class="progress-track">
+                        <div class="progress-fill" id="progressFill"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- IFRAME -->
         <iframe
-            src="https://script.google.com/macros/s/AKfycbzBqpac2F9j-evKz9_tqg1Vpv2KvHAIww2VBHQjJkJRtrM0uiIkdQ1AFBvj7XtScd_tUw/exec"
-            title="BRN Integrity Flow" onload="document.getElementById('loader').style.display='none';" allowfullscreen>
+            src="https://script.google.com/macros/s/AKfycbxSNF08QmQ7V3j2QTk_4val_HguuhSFRBkO60Pyewl8Ps2g7-4fkn6wsI-B-VkvzfJ51w/exec"
+            title="BRN Integrity Flow"
+            onload="finishLoading()"
+            allowfullscreen>
         </iframe>
     </div>
+
+    <script>
+        const loader = document.getElementById("loader");
+        const progressFill = document.getElementById("progressFill");
+        const percentText = document.getElementById("percentText");
+        const statusText = document.getElementById("statusText");
+        const loaderDesc = document.getElementById("loaderDesc");
+
+        let progress = 0;
+        let loaded = false;
+
+        const fakeLoading = setInterval(() => {
+            if (loaded) return;
+
+            progress += Math.floor(Math.random() * 5) + 2;
+
+            if (progress > 92) {
+                progress = 92;
+            }
+
+            progressFill.style.width = progress + "%";
+            percentText.textContent = progress + "%";
+
+            if (progress > 30) {
+                statusText.textContent = "AUTHENTICATING";
+                loaderDesc.textContent = "Memvalidasi jalur koneksi menuju sistem BRN.";
+            }
+
+            if (progress > 60) {
+                statusText.textContent = "SYNCING";
+                loaderDesc.textContent = "Sinkronisasi data interface sedang disiapkan.";
+            }
+
+            if (progress >= 90) {
+                statusText.textContent = "STANDBY";
+                loaderDesc.textContent = "Menunggu dashboard siap ditampilkan.";
+            }
+        }, 260);
+
+        function finishLoading() {
+            loaded = true;
+            clearInterval(fakeLoading);
+
+            progressFill.style.width = "100%";
+            percentText.textContent = "100%";
+            statusText.textContent = "CONNECTED";
+            loaderDesc.textContent = "Koneksi berhasil. Membuka dashboard BRN IF.";
+
+            setTimeout(() => {
+                loader.classList.add("complete");
+            }, 300);
+
+            setTimeout(() => {
+                loader.classList.add("exit");
+            }, 1000);
+
+            setTimeout(() => {
+                loader.classList.add("hidden");
+            }, 1850);
+        }
+    </script>
 </body>
 
 </html>
